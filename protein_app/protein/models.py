@@ -8,8 +8,8 @@ class Protein(models.Model):
     sequence = models.CharField(max_length=20)
     taxonomy = models.ForeignKey(
         'Taxa', null=True, blank=True, on_delete=models.SET_NULL)
-    length = models.IntegerField(default=0)
-    domains = models.ManyToManyField(Domain)
+    length = models.IntegerField(default=0, null=True, blank=True)
+    domains = models.ManyToManyField(Domain, null=True, blank=True)
 
     def __str__(self):
         return self.protein_id

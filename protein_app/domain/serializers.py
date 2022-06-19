@@ -6,14 +6,15 @@ class PfamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pfam
         fields = [
-            'domian-id',
+            'id',
+            'domain_id',
             'domain_description',
         ]
 
 
 class DomainSerializer(serializers.ModelSerializer):
 
-    pfam = serializers.PfamSerializer(read_only=True)
+    pfam = PfamSerializer(read_only=True)
     description = serializers.SlugRelatedField(
         many=True,
         read_only=True,

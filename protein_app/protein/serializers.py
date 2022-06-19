@@ -1,15 +1,21 @@
 from rest_framework import serializers
 from .models import *
+from domain.serializers import DomainSerializer
 
+class TaxaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Taxa
+        fields = [
+            'taxa_id',
+            'clade',
+            'genus',
+            'species',
+        ]
 
 class ProteinSerializer(serializers.ModelSerializer):
 
     taxonomy = TaxaSerializer(read_only=True)
-    domains = serializers.SlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field='description'
-    )
+    domains = DomainSerializer(many=True, read_only=True)
 
     class Meta:
         model = Protein
@@ -22,12 +28,9 @@ class ProteinSerializer(serializers.ModelSerializer):
         ]
 
 
-class TaxaSerializer(serializers.ModelSerializer):
+class ProteinListSerializer(serializers.ModelSerializer):
+
     class Meta:
-        model = Taxa
-        fields = [
-            'taxa_id',
-            'clade',
-            'genus',
-            'species',
-        ]
+        model = Protein
+        lookup_field = 'taxonomy.taxa_id'
+        fields = ['id', 'protein_id']

@@ -1,9 +1,8 @@
-# import Protein, Taxa models as well as Domain and Pfam models
+# import Domain and Pfam models
+from domain.models import *
 
 # import BaseCommand to handle the terminal commands 
 from django.core.management.base import BaseCommand, CommandError
-
-from domain.models import *
 
 # imports the in-built csv module
 import csv
@@ -44,7 +43,7 @@ class Command(BaseCommand):
 
                 try:
                     pfam, _ = Pfam.objects.get_or_create(
-                        domain_id=row[-1], domain_description=row[-2])
+                        domain_id=row[-2], domain_description=row[-1])
                 except Exception as e:
                     raise CommandError('An exception occured: ' + str(e))
 
