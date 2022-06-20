@@ -33,4 +33,4 @@ class ProteinListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Protein
         lookup_field = 'taxonomy.taxa_id'
-        fields = ['id', 'protein_id']
+        fields = ['id', 'protein_id', 'sequence']

@@ -32,19 +32,24 @@ class Command(BaseCommand):
             next(reader)
 
             # remove any instances that might be in the models tables
-            Protein.objects.all().delete()
+            # Protein.objects.all().delete()
 
             # loop over all rows in the CSV
             for row in reader:
-                print(row)
+
                 # For the first time, It returns a tuple, where the object at the first index is the Django model object that was created (if it didn’t exist in the database yet) or retrieved (if it already existed). The second element in the tuple is a boolean that returns True if the object was created and False otherwise
 
                 try:
-                    protein, _ = Protein.objects.get_or_create(
+                    protein, created = Protein.objects.get_or_create(
                         protein_id=row[0],
-                        sequence=row[1]
                     )
-                    
+
+                    if not created:
+                        print(protein.protein_id)
+                        taxa = Taxa.objects.get(taxa_id=row[1])
+                        if taxa:
+                            protein.taxonomy = taxa
+                        print(protein.protein_id, taxa.taxa_id)
                 except Exception as e:
                     raise CommandError('An exception occured: ' + str(e))
 

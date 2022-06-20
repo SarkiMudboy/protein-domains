@@ -2,7 +2,6 @@ from django.db import models
 
 # Create your models here.
 
-
 class Pfam(models.Model):
     domain_id = models.CharField(max_length=10, unique=True)
     domain_description = models.CharField(max_length=250)

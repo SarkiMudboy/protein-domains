@@ -16,3 +16,11 @@ class ProteinListView(generics.ListCreateAPIView):
     #     taxomomy = get_object_or_404(Taxomomy, taxa_id=lookup_field)
     #     qs = Protein.objects.filter(taxomomy=taxomomy)
     #     return qs
+
+
+class ProteinRetrieveView(generics.RetrieveAPIView):
+
+    queryset = Protein.objects.all()
+    serializer_class = ProteinSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    lookup_field = 'protein_id'
