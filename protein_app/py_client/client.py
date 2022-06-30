@@ -1,19 +1,21 @@
 import requests
 
-domain_id = 'PF17219'
-taxa_id = ''
+pfam_id = 'PF09133'
+taxa_id = '53326'
+
 
 protein_id = 'A0A0P6DPH2'
 
 data = {
+    'id': '9989',
     'protein_id': 'QWERTYCOSTOM',
-    'sequence': 'QWERTYUIOPASDFGHJKL'
+    'sequence': 'QWERTYUIOPASDFGHkkkk'
 }
 
-endpoint = f'http://127.0.0.1:8000/api/protein/get/{protein_id}/'
-# endpoint = f'http://127.0.0.1:8000/api/protein/'
+# endpoint = f'http://127.0.0.1:8000/api/pfam/domain'
+endpoint = f'http://127.0.0.1:8000/api/protein/delete/QWERTYCOSTOM'
 
-response = requests.get(endpoint)
+response = requests.delete(endpoint, json=data)
 
 data = response.json()
 

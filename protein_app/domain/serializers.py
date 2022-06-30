@@ -8,24 +8,37 @@ class PfamSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'domain_id',
-            'domain_description',
+            'description',
         ]
-
 
 class DomainSerializer(serializers.ModelSerializer):
 
-    pfam = PfamSerializer(read_only=True)
-    description = serializers.SlugRelatedField(
+    domain_pfam = PfamSerializer(source='pfam', read_only=True)
+
+    class Meta:
+        model = Domain
+        fields = [
+            'id',
+            'pfam',
+            'domain_pfam',
+            'description',
+            'start',
+            'stop'
+        ]
+
+class DomainRetrieveSerializer(serializers.ModelSerializer):
+
+    pfam = serializers.SlugRelatedField(
         many=True,
         read_only=True,
-        slug_field='domain_description',
+        slug_field='description',
     )
 
     class Meta:
         model = Domain
         fields = [
+            'id',
             'pfam',
-            'description',
             'start',
             'stop',
         ]

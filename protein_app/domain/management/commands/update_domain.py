@@ -1,5 +1,4 @@
-# import Protein, Taxa models
-from protein.models import *
+# import Pfam, Domain models
 from domain.models import *
 
 # import BaseCommand to handle the terminal commands
@@ -8,7 +7,7 @@ from django.core.management.base import BaseCommand, CommandError
 # imports the in-built csv module
 import csv
 
-# As stated in the django-extensions documentation, “This file must implement a run() function. This is what gets called when you run the script.
+# As stated in the django-rest documentation, “This file must implement a handle() function. This is what gets called when you run the script.
 
 
 class Command(BaseCommand):
@@ -46,35 +45,27 @@ class Command(BaseCommand):
                 # For the first time, It returns a tuple, where the object at the first index is the Django model object that was created (if it didn’t exist in the database yet) or retrieved (if it already existed). The second element in the tuple is a boolean that returns True if the object was created and False otherwise
 
                 try:
-                    protein = Protein.objects.get(
-                        protein_id=row[0],
+                    pfam = Pfam.objects.get(
+                        domain_id=row[-4],
                     )
 
-                    # if protein exixts the pfam and domain is retreived and 
-                    # the protein model is enriched.
+                    if pfam:
 
-                    if protein:
-
-                        pfam = Pfam.objects.get(
-                            domain_id=row[-4],
-                            )
+                        print(pfam.domain_id)
 
                         domain = Domain.objects.filter(
-                            pfam=pfam, 
+                            pfam=pfam,
                             start=row[-3],
-                            stop=row[-2]
-                            ).first()
+                            stop=row[-2],
+                        )
 
-                        # protein.length = row[-1]
+                        for d in domain:
+                            d.delete()
 
-                        # clear all instances of the domains and enrich
-                        protein.domains.clear()
-                        protein.domains.add(domain)
+                        # domain.description = row[-5]
 
-                        print(protein.id, [domain for domain in protein.domains.all()])
-
-                        # save the model
-                        protein.save()
+                        # saves the model instance
+                        # domain.save()
 
                 except Exception as e:
                     raise CommandError('An exception occured: ' + str(e))
