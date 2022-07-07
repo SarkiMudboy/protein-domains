@@ -4,18 +4,18 @@ from protein_app.mixins import BaseCustomView
 from .serializers import PfamSerializer, DomainSerializer, DomainRetrieveSerializer
 from rest_framework import generics
 from rest_framework import mixins
-from rest_framework.permissions import IsAdminUser, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAdminUser, IsAuthenticatedOrReadOnly, DjangoModelPermissions
 
 
 class PfamListView(generics.ListCreateAPIView):
     queryset = Pfam.objects.all()
     serializer_class = PfamSerializer
-    # permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [DjangoModelPermissions, IsAuthenticatedOrReadOnly]
 
 class PfamTaxaListView(generics.ListAPIView):
     queryset = Pfam.objects.all()
     serializer_class = PfamSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [DjangoModelPermissions, IsAuthenticatedOrReadOnly]
     lookup_url_kwarg = 'taxa_id'
 
     def get_queryset(self):
@@ -26,14 +26,13 @@ class PfamTaxaListView(generics.ListAPIView):
 class PfamView(BaseCustomView):
     queryset = Pfam.objects.all()
     serializer_class = PfamSerializer
-    # permission_classes = [IsAuthenticatedOrReadOnly]
     lookup_field = 'domain_id'
 
 
 class DomainListView(generics.ListCreateAPIView):
     queryset = Domain.objects.all()
     serializer_class = DomainSerializer
-    # permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [DjangoModelPermissions, IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         qs = Domain.objects.prefetch_related('pfam')
@@ -42,7 +41,6 @@ class DomainListView(generics.ListCreateAPIView):
 class DomainView(BaseCustomView):
     queryset = Domain.objects.all()
     serializer_class = DomainSerializer
-    # permission_classes = []
     lookup_field = 'id'
 
 

@@ -1,5 +1,6 @@
 from rest_framework import mixins
 from rest_framework import generics
+from rest_framework.permissions import DjangoModelPermissions, IsAuthenticatedOrReadOnly
 
 
 class BaseCustomView(
@@ -7,6 +8,8 @@ class BaseCustomView(
         mixins.UpdateModelMixin,
         mixins.DestroyModelMixin,
         generics.GenericAPIView):
+
+    permission_classes = [DjangoModelPermissions, IsAuthenticatedOrReadOnly]
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)

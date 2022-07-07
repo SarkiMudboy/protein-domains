@@ -40,11 +40,13 @@ INSTALLED_APPS = [
 
     # third party libs
     'rest_framework',
+    'rest_framework.authtoken',
     
     # local apps
     'api',
     'protein',
     'domain',
+    'users'
 ]
 
 MIDDLEWARE = [
@@ -133,4 +135,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 100
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+    'api.authentication.BearerAuthentication',
+    'rest_framework.authentication.SessionAuthentication'
+    ]
 }
