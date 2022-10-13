@@ -61,3 +61,4 @@ class ProteinListSerializer(serializers.ModelSerializer):
                 'The sequence characters must be uppercase')
 
         return value
+

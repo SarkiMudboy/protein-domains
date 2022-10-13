@@ -18,6 +18,13 @@ class ProteinListView(generics.ListCreateAPIView):
         qs = Protein.objects.filter(taxonomy=taxomomy)
         return qs
 
+    def get_user(self):
+        return self.request.user
+
+    def perform_create(self, serializer):
+        """set the sender to the logged in user"""
+        serializer.save(owner=self.get_user())
+
 class ProteinView(BaseCustomView):
 
     queryset = Protein.objects.all()
