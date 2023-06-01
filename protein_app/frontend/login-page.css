@@ -68,7 +68,7 @@ body {
     padding: 0px 0px 5px 5px;
 }
 
-#login-form-submit {
+.form-submit {
     width: 100%;
     padding: 7px;
     margin: 10px;
@@ -79,4 +79,8 @@ body {
     background-color: #3a3a3a;
     cursor: pointer;
     outline: none;
+}
+
+#load-form-submit{
+    opacity: 0;
 }

@@ -10,11 +10,11 @@ class ProteinListView(generics.ListCreateAPIView):
 
     queryset = Protein.objects.all()
     serializer_class = ProteinListSerializer
-    permission_classes = [DjangoModelPermissions, IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     lookup_field = 'taxa_id'
 
     def get_queryset(self):
-        taxomomy = get_object_or_404(Taxa, taxa_id=self.kwargs.get(self.lookup_field))
+        taxomomy = get_object_or_404(Taxa, taxa_id=self.request.data.get(self.lookup_field))
         qs = Protein.objects.filter(taxonomy=taxomomy)
         return qs
 
@@ -35,7 +35,7 @@ class ProteinView(BaseCustomView):
 class TaxaCreateView(generics.ListCreateAPIView):
     queryset = Taxa.objects.all()
     serializer_class = TaxaSerializer
-    permission_classes = [DjangoModelPermissions, IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 
 class TaxaView(BaseCustomView):

@@ -9,7 +9,7 @@ class BaseCustomView(
         mixins.DestroyModelMixin,
         generics.GenericAPIView):
 
-    permission_classes = [DjangoModelPermissions, IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)

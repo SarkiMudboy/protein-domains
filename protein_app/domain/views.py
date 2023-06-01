@@ -10,12 +10,12 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticatedOrReadOnly, D
 class PfamListView(generics.ListCreateAPIView):
     queryset = Pfam.objects.all()
     serializer_class = PfamSerializer
-    permission_classes = [DjangoModelPermissions, IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 class PfamTaxaListView(generics.ListAPIView):
     queryset = Pfam.objects.all()
     serializer_class = PfamSerializer
-    permission_classes = [DjangoModelPermissions, IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     lookup_url_kwarg = 'taxa_id'
 
     def get_queryset(self):
@@ -32,7 +32,7 @@ class PfamView(BaseCustomView):
 class DomainListView(generics.ListCreateAPIView):
     queryset = Domain.objects.all()
     serializer_class = DomainSerializer
-    permission_classes = [DjangoModelPermissions, IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         qs = Domain.objects.prefetch_related('pfam')

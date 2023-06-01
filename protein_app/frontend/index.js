@@ -5,6 +5,7 @@ async function fetchData(url = '', method='', data={}, customHeaders={}) {
         'Content-Type': 'application/json',
         'origin': '*',
     }
+    
     var requestData = {
         method: method, // *GET, POST, PUT, DELETE, etc.
         mode: 'cors',
@@ -20,12 +21,13 @@ async function fetchData(url = '', method='', data={}, customHeaders={}) {
         delete requestData.body
     }
 
-    // Default options are marked with *
     const response = await fetch(url, requestData);
 
-    if (response.status !== 200) {
-        return response.status === 200;
-    } 
+    if (!response.ok) {
+        const error = response.statusText || response.status;
+        return Promise.reject(error);
+    }
+    
     return response.json(); // parses JSON response into native JavaScript objects
     
 }
@@ -39,15 +41,16 @@ function refresh () {
 
     if (refreshToken) {
                 
-        fetchData(refreshEndpoint, 'POST',{ 'refresh': refreshToken })
+        fetchData(refreshEndpoint, 'POST', { 'refresh': refreshToken })
         .then((data) => {
-            if (!data) {
-                // display error message
-            } else {
-                console.log(data); // JSON data parsed by `data.json()` call
-                userCredentials.access = data['access']
-                localStorage.setItem('access', data['access']);
-            }
+            console.log(data); // JSON data parsed by `data.json()` call
+            userCredentials.access = data['access']
+            localStorage.setItem('access', data['access']);
+        }).catch(error => {
+            // handle error here
+            displayErrorMessage(error + " Login again")
+            loadTaxaBtn = document.querySelector('#load-form-submit')
+            loadTaxaBtn.style.opacity = 0
         });
     }
 }
@@ -63,42 +66,80 @@ function getCredentials(username, password) {
     }
 
     fetchData(tokenEndpoint, 'POST', requestData).then((data) => {
-        // console.log(data);
-        if (data) {
-            localStorage.clear();
-            localStorage.setItem('access', data['access'])
-            localStorage.setItem('refresh', data['refresh'])
-        } else {
-            // display error message here
-        }
 
-        
-    })
+        localStorage.clear();
+        localStorage.setItem('access', data['access'])
+        localStorage.setItem('refresh', data['refresh'])
+    }).catch(error => {
+        // handle error here
+        displayErrorMessage(error)
+    });
 }
+
+function resetErrorMessage() {
+    errorMessageElement = document.querySelector('#login-error-msg')
+    errorMessageElement.innerHTML = ''
+    errorMessageElement.style.opacity = 0
+}
+
+function displayErrorMessage(message) {
+    errorMessageElement = document.querySelector('#login-error-msg')
+    errorMessageElement.innerHTML = message
+    errorMessageElement.style.opacity = 1
+}
+
+resetErrorMessage()
 
 let loginForm = document.querySelector('#login-form')
 let loginButton = document.querySelector('#login-form-submit')
 
 proteinContainer = document.querySelector('.protein-container')
+loadTaxaBtn = document.querySelector('#load-form-submit')
 
 loginButton.addEventListener('click', (e) => {
+
     e.preventDefault();
+    resetErrorMessage();
+
     const username = loginForm.username.value;
     const password = loginForm.password.value;
     const taxaId = loginForm.taxa.value;
 
     let proteinEndpoint = `http://127.0.0.1:8000/api/protein/${taxaId}/`
 
-
     getCredentials(username, password)
 
+    localStorage.setItem('taxaID', taxaId)
+    console.log(localStorage.getItem('taxaID'))
     access = localStorage.getItem('access')
 
     fetchData(proteinEndpoint, 'GET', null, {'Authorization': 'Bearer ' + access}).then((data) => {
         console.log(data)
-        if (!data) {
-            refresh()
-        }
-    })
+        loadTaxaBtn.style.opacity = 1
+
+    }).catch(error => {
+        displayErrorMessage(error + " login again")
+    });
 
 })
+
+loadTaxaBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    resetErrorMessage();
+
+    const access = localStorage.getItem('access')
+    const taxaId = localStorage.getItem('taxaID')
+    
+    let proteinEndpoint = `http://127.0.0.1:8000/api/protein/${taxaId}/`
+
+    fetchData(proteinEndpoint, 'GET', null, {'Authorization': 'Bearer ' + access}).then((data) => {
+        console.log(data)
+    }).catch(error => {
+        displayErrorMessage(error + " load again")
+        refresh();
+    });
+
+})
+
+// 53326
+// ASEW2345
