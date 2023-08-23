@@ -1,19 +1,22 @@
-# import Pfam, Domain models
+# import Protein, Taxa models
+from protein.models import *
 from domain.models import *
 
-# import BaseCommand to handle the terminal commands
+# get auth user model
+from django.contrib.auth import get_user_model
+
 from django.core.management.base import BaseCommand, CommandError
 
-# imports the in-built csv module
 import csv
-import os
 
-# As stated in the django-rest documentation, “This file must implement a handle() function. This is what gets called when you run the script.
+# As stated in the django-extensions documentation, “This file must implement a run() function. This is what gets called when you run the script.
 
+
+User = get_user_model()
 
 class Command(BaseCommand):
 
-    help = 'Enriches the database from a pre-populated csv'
+    help = 'Enriches the protein data with taxa data'
 
     def add_arguments(self, parser):
         parser.add_argument('path', nargs='+', type=str)
@@ -21,10 +24,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         path = options['path'][0]
-        
+        print(path)
+
         # concatenates the root path to filename
         path = r'C:\Users\ihima\OneDrive\Desktop\protein\protein-domains\protein_app\resources' + f'\{str(path)}'
         print(path)
+
         # opens the csv file using 'with' context management structure
 
         with open(str(path)) as file:
@@ -32,8 +37,8 @@ class Command(BaseCommand):
             # pass file variable to the reader function
             reader = csv.reader(file)
 
-            # remove any instances that might be in the models tables
-            # Protein.objects.all().delete()
+            # get superuser 'ihima'
+            superuser = User.objects.get(username='ihima')
 
             # loop over all rows in the CSV
             for row in reader:
@@ -41,24 +46,23 @@ class Command(BaseCommand):
                 # For the first time, It returns a tuple, where the object at the first index is the Django model object that was created (if it didn’t exist in the database yet) or retrieved (if it already existed). The second element in the tuple is a boolean that returns True if the object was created and False otherwise
 
                 try:
-                    pfam, created = Pfam.objects.get_or_create(
-                        domain_id=row[-4],
+                    protein = Protein.objects.get(
+                        owner=superuser,
+                        protein_id=row[0],
                     )
+                    
+                    # if protein exixts the pfam and domain is retreived and 
+                    # the protein model is enriched.
 
-                    if not created:
+                    if protein:
 
-                        domain, created = Domain.objects.get_or_create(
-                            pfam=pfam,
-                            description=row[-5],
-                            start=row[-3],
-                            stop=row[-2],
-                        )
-                        print(domain.description)
+                        taxa = Taxa.objects.get(taxa_id=row[1])
+                        protein.taxonomy = taxa
 
-                        if created:
+                        # save the model
+                        protein.save()
 
-                            # saves the model instance
-                            domain.save()
+                        print(protein.taxonomy.taxa_id)
 
                 except Exception as e:
                     raise CommandError('An exception occured: ' + str(e))

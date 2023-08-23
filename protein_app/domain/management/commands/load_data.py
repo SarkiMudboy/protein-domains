@@ -28,11 +28,8 @@ class Command(BaseCommand):
             # pass file variable to the reader function
             reader = csv.reader(file)
 
-            # to skip the CSV headers,
-            next(reader)
-
             # remove any instances that might be in the models tables
-            Pfam.objects.all().delete()
+            # Pfam.objects.all().delete()
 
             # loop over all rows in the CSV
             for row in reader:
@@ -43,7 +40,7 @@ class Command(BaseCommand):
 
                 try:
                     pfam, _ = Pfam.objects.get_or_create(
-                        domain_id=row[-2], domain_description=row[-1])
+                        domain_id=row[-2], description=row[-1])
                 except Exception as e:
                     raise CommandError('An exception occured: ' + str(e))
 

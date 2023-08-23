@@ -32,13 +32,10 @@ class Command(BaseCommand):
             next(reader)
 
             # remove any instances that might be in the models tables
-            Taxa.objects.all().delete()
+            # Taxa.objects.all().delete()
 
             # loop over all rows in the CSV
             for row in reader:
-
-                # For the first time, It returns a tuple, where the object at the first index is the Django model object that was created (if it didn’t exist in the database yet) or retrieved (if it already existed). The second element in the tuple is a boolean that returns True if the object was created and False otherwise
-                
 
                 # split taxa data to get genus and species
                 taxa_data = row[3].split(' ')

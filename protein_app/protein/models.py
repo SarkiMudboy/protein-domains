@@ -11,7 +11,7 @@ class Protein(models.Model):
         on_delete=models.CASCADE
         )
     protein_id = models.CharField(max_length=20)
-    sequence = models.CharField(max_length=200)
+    sequence = models.CharField(max_length=90000)
     taxonomy = models.ForeignKey('Taxa', null=True, blank=True, on_delete=models.SET_NULL)
     length = models.IntegerField(default=0, null=True, blank=True)
     domains = models.ManyToManyField(Domain, null=True, blank=True)

@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from .models import *
 from domain.serializers import DomainSerializer
-from scripts.nbci_api import fetch_taxa
+from utils import fetch_taxa
 
 
 class TaxaSerializer(serializers.ModelSerializer):
