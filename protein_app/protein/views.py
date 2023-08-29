@@ -25,6 +25,7 @@ class ProteinListView(generics.ListCreateAPIView):
         """set the sender to the logged in user"""
         serializer.save(owner=self.get_user())
 
+
 class ProteinView(BaseCustomView):
 
     queryset = Protein.objects.all()

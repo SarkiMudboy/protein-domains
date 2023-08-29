@@ -1,8 +1,9 @@
-from views import ResearcherViewSet
-from rest_framework.routers import DefaultRouter
+# from .views import ResearcherView, CreateResearcherView
+from django.urls import path
 
+# app_name = "users"
 
-router = DefaultRouter()
-router.register('researchers', ResearcherViewSet, basename='researcher')
-
-urlpatterns = router.urls
+# urlpatterns = [
+#     path('researchers/<int:pk>', ResearcherView.as_view()),
+#     path('researchers/create', CreateResearcherView.as_view())
+# ]

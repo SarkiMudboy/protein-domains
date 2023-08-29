@@ -1,13 +1,13 @@
 import factory
-from models import Pfam, Domain
+from .models import Pfam, Domain
 
 
 class PfamFactory(factory.django.DjangoModelFactory):
 
     class Meta:
-        model = Domain
+        model = Pfam
 
-    domain_id = factory.Sequence(lambda n: 'PF0040%d' % n)
+    domain_id = factory.Sequence(lambda n: 'PF101010%d' % n)
     description = 'This is a test description'
 
 
