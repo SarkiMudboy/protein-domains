@@ -4,7 +4,7 @@ import requests
 ROOT_URL = 'http://127.0.0.1:8000/api/'
 
 token_urls = {
-    'api_token_auth': ROOT_URL + 'api-token-auth/',
+    'api_token_auth': ROOT_URL + 'login/',
     'token': ROOT_URL + 'token/',
     'refresh': ROOT_URL + 'token/refresh/',
 }
@@ -31,14 +31,15 @@ update_user_data = partial_update_user_data | {'password': '2580twice', 'email':
 
 # create a user
 
-create_user_response = requests.post(ROOT_URL + 'register/', create_user_data)
-print(create_user_response.json())
+# create_user_response = requests.post(ROOT_URL + 'register/', create_user_data)
+# print(create_user_response.json())
 
 
 # obtain token
-# obtain_token_response = requests.post(token_urls.get('api_token_auth'), data=login_data)
-# response_data = obtain_token_response.json()
-# print(response_data)
+print(login_data)
+obtain_token_response = requests.post(token_urls.get('api_token_auth'), data=login_data)
+response_data = obtain_token_response.json()
+print(response_data)
 # token = response_data.get('token')
 # user_id = response_data.get('user_id')
 
@@ -59,3 +60,12 @@ print(create_user_response.json())
 
 # update a user
 # update_response = requests.put(ROOT_URL + 'researchers/')
+
+o = {
+    "username":"swelle22",
+    "password": "2580twice"
+}
+p = {
+    "username":"sdotgo02",
+    "password": "abdulsamad"
+}
