@@ -14,16 +14,14 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 
-
+from django.contrib.auth import authenticate
 
 class AuthTokenView(ObtainAuthToken):
 
     def post(self, request, *args, **kwargs):
         
-        serializer = self.serializer_class(data=request.data, context={'request': request})
-        
+        serializer = self.serializer_class(data=request.data, context={'request': request})        
         serializer.is_valid(raise_exception=True)
-        print('>>>', serializer)
         user = serializer.validated_data['user']
         token, created = Token.objects.get_or_create(user=user)
 

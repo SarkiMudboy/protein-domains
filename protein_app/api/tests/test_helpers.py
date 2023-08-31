@@ -16,6 +16,8 @@ class ResearcherTestHelper(TestHelper):
 
         self.user_data['password2'] = self.user_data.get('password')
 
+        self.test_password = 'its-a-secret'
+
         self.user_auth_token = Token.objects.get(user=self.user)
 
     def tearDown(self) -> None:

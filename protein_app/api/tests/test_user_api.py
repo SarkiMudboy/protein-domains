@@ -2,16 +2,16 @@ from .test_helpers import ResearcherTestHelper
 from django.urls import reverse
 from rest_framework import status
 import secrets
-from django.conf import settings
+from django.contrib.auth.models import User
+from django.contrib.auth.hashers import check_password
 
 
 REGISTER = reverse('researchers:auth_register')
 LOGIN = reverse('researchers:login')
 RESEARCHER = 'researchers:researcher'
 
-User = settings.AUTH_USER_MODEL
 
-class ResearcherTestcase(ResearcherTestHelper):
+class ResearcherTestCase(ResearcherTestHelper):
 
     def test_researcher_can_create_account(self):
 
@@ -31,14 +31,19 @@ class ResearcherTestcase(ResearcherTestHelper):
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        # without password
+        with self.assertRaises(User.DoesNotExist):
+            User.objects.get(email=self.user_data.get('email'))
 
+        # without password
         user_data = self.user_data.copy()
         user_data.pop('password'), user_data.pop('password2')
 
         response = self.client.post(REGISTER, user_data, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        with self.assertRaises(User.DoesNotExist):
+            User.objects.get(email=self.user_data.get('email'))
 
         # without password2
 
@@ -49,6 +54,9 @@ class ResearcherTestcase(ResearcherTestHelper):
         response = self.client.post(REGISTER, user_data, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        with self.assertRaises(User.DoesNotExist):
+            User.objects.get(email=self.user_data.get('email'))
 
 
     def test_password_not_included_in_register_response(self):
@@ -88,13 +96,13 @@ class ResearcherTestcase(ResearcherTestHelper):
         username = user.username
         password = user.password
 
-        login_data = {'username': username, 'password': password}
-
+        login_data = {'username': username, 'password': self.test_password}
+        
         response = self.client.post(LOGIN, login_data, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.assertEqual(response.json().get('token'), self.user_auth_token)
+        self.assertEqual(response.json().get('token'), self.user_auth_token.key)
 
     def test_user_cannot_modify_account_without_token_or_wrong_token(self): 
 
@@ -108,6 +116,10 @@ class ResearcherTestcase(ResearcherTestHelper):
         
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
+        updated_user = User.objects.get(pk=user_id)
+
+        self.assertNotEqual(updated_user.username, mod_data.get('username'))
+
         # wrong token
 
         token = secrets.token_urlsafe(40)
@@ -118,8 +130,14 @@ class ResearcherTestcase(ResearcherTestHelper):
         
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
+        updated_user = User.objects.get(pk=user_id)
+
+        self.assertNotEqual(updated_user.username, mod_data.get('username'))
+
 
     def test_user_can_modify_account(self):
+
+        email = self.user.email
 
         token = self.user_auth_token
 
@@ -151,15 +169,15 @@ class ResearcherTestcase(ResearcherTestHelper):
 
         response = self.client.delete(endpoint, format='json')
         
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-
-        # self.assertEqual()
+        with self.assertRaises(User.DoesNotExist):
+            User.objects.get(email=email)
 
 
 
         
-
+class JWTTokenTestCase(ResearcherTestHelper):...
 
 
         
