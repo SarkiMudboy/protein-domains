@@ -3,12 +3,16 @@ from django.urls import reverse
 from rest_framework import status
 import secrets
 from django.contrib.auth.models import User
-from django.contrib.auth.hashers import check_password
-
+from unittest.mock import patch
+from rest_framework import serializers
 
 REGISTER = reverse('researchers:auth_register')
 LOGIN = reverse('researchers:login')
 RESEARCHER = 'researchers:researcher'
+
+OBTAIN_TOKEN_PAIR = reverse('researchers:token_obtain_pair')
+REFRESH_TOKEN = reverse('researchers:token_refresh')
+VERIFY_TOKEN = reverse('researchers:token_verify')
 
 
 class ResearcherTestCase(ResearcherTestHelper):
@@ -177,7 +181,88 @@ class ResearcherTestCase(ResearcherTestHelper):
 
 
         
-class JWTTokenTestCase(ResearcherTestHelper):...
+class JWTTokenTestCase(ResearcherTestHelper):
+
+    def test_user_cannot_acess_tokens_without_credentials(self):
+        
+        response = self.client.post(OBTAIN_TOKEN_PAIR, {}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # test user can get tokens
+
+        user_data = self.user
+
+        login_data = {'username': user_data.username, 'password': self.test_password}
+
+        response = self.client.post(OBTAIN_TOKEN_PAIR, data=login_data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        token_data = response.json()
+
+        self.assertIsNotNone(token_data.get('access')), self.assertIsNotNone(token_data.get('refresh'))
+
+    def user_cannnot_refresh_token_without_token(self):
+        
+        # get tokens
+
+        user_data = self.user
+
+        login_data = {'username': user_data.username, 'password': self.test_password}
+
+        response = self.client.post(OBTAIN_TOKEN_PAIR, data=login_data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        access_token, refresh_token = response.json().get('access'), response.json().get('refresh')
+
+        # refresh without token
+        response = self.client.post(REFRESH_TOKEN, {}, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # with token
+        response = self.client.post(REFRESH_TOKEN, {'refresh': refresh_token}, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertNotEqual(access_token, response.json().get('access'))
+    
+    # @patch('rest_framework_simplejwt.serializers.RefreshJSONWebTokenSerializer.validate')
+    # @patch('rest_framework_simplejwt.serializers.VerifyJSONWebTokenSerializer.validate')
+    def test_token_expiry(self):
+
+        from rest_framework_simplejwt.serializers import VerifyJSONWebTokenSerializer
+        
+        user_data = self.user
+
+        login_data = {'username': user_data.username, 'password': self.test_password}
+
+        response = self.client.post(OBTAIN_TOKEN_PAIR, data=login_data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        access_token, refresh_token = response.json().get('access'), response.json().get('refresh')
+
+        # verify access token
+
+        validate_mock.side_effect = serializers.ValidationError('Signature has expired.')
+
+        response = self.client.post(REFRESH_TOKEN, {'access': refresh_token}, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+        # token expired
+
+        validate_mock.side_effect = serializers.ValidationError('Refresh has expired.')
+
+        response = self.client.post(REFRESH_TOKEN, {'refresh': refresh_token}, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
 
 
         
