@@ -16,6 +16,11 @@ class UserFactory(factory.django.DjangoModelFactory):
     email = factory.LazyAttribute(lambda user: '%s@examplemail.com' %user.username)
     password = factory.django.Password('its-a-secret')
 
+    # return the password as a string
+    @classmethod
+    def raw_password(cls):
+        return 'its-a-secret'
+
 
 class SuperUserFactory(UserFactory):
 

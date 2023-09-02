@@ -12,6 +12,7 @@ class APIData:
         return self.pfam
     
     def get_domain_data(self, *args, **kwargs):
+        
         self.domain = factory.build(dict, FACTORY_CLASS=DomainFactory)
         return self.domain
 

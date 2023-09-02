@@ -4,7 +4,8 @@ from rest_framework import status
 import secrets
 from django.contrib.auth.models import User
 from unittest.mock import patch
-from rest_framework import serializers
+from rest_framework_simplejwt.exceptions import TokenError
+from django.utils.translation import gettext_lazy as _
 
 REGISTER = reverse('researchers:auth_register')
 LOGIN = reverse('researchers:login')
@@ -24,6 +25,8 @@ class ResearcherTestCase(ResearcherTestHelper):
         response = self.client.post(path=REGISTER, data=user_data, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, 'User not created')
+        
+        # self.assertGreater(len(User.objects.all()), 1)
 
     def test_researcher_cannot_create_account_without_required_credentials(self):
 
@@ -229,11 +232,8 @@ class JWTTokenTestCase(ResearcherTestHelper):
 
         self.assertNotEqual(access_token, response.json().get('access'))
     
-    # @patch('rest_framework_simplejwt.serializers.RefreshJSONWebTokenSerializer.validate')
-    # @patch('rest_framework_simplejwt.serializers.VerifyJSONWebTokenSerializer.validate')
-    def test_token_expiry(self):
-
-        from rest_framework_simplejwt.serializers import VerifyJSONWebTokenSerializer
+    @patch('rest_framework_simplejwt.tokens.Token.for_user')
+    def test_token_expiry(self, validate_mock):
         
         user_data = self.user
 
@@ -247,20 +247,19 @@ class JWTTokenTestCase(ResearcherTestHelper):
 
         # verify access token
 
-        validate_mock.side_effect = serializers.ValidationError('Signature has expired.')
+        validate_mock.side_effect = TokenError(_("Token is invalid or expired"))
 
-        response = self.client.post(REFRESH_TOKEN, {'access': refresh_token}, format='json')
+        response = self.client.post(VERIFY_TOKEN, {'token': access_token}, format='json')
         
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         # token expired
 
-        validate_mock.side_effect = serializers.ValidationError('Refresh has expired.')
+        validate_mock.side_effect = TokenError(_("Token is invalid or expired"))
 
         response = self.client.post(REFRESH_TOKEN, {'refresh': refresh_token}, format='json')
         
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 

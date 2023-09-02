@@ -17,4 +17,6 @@ class DomainFactory(factory.django.DjangoModelFactory):
         model = Domain
 
     pfam = factory.SubFactory(PfamFactory)
-    description = 'This is a test description'
+    description = 'domain: This is a test description'
+    start = 300
+    stop = 304
