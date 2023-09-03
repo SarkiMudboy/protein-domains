@@ -10,6 +10,11 @@ class PfamFactory(factory.django.DjangoModelFactory):
     domain_id = factory.Sequence(lambda n: 'PF101010%d' % n)
     description = 'This is a test description'
 
+    # @classmethod
+    # def _setup_next_sequence(cls):
+    #     try:
+    #         Pfam.objects.latest().domain_id[-1] = 
+
 
 class DomainFactory(factory.django.DjangoModelFactory):
 

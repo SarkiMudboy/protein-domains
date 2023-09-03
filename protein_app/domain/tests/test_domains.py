@@ -23,6 +23,11 @@ class PfamTestCase(DomainTestHelper):
     def test_unauthenticated_user_cannot_create_new_pfam(self):
 
         pfam_data = self.api_data.get_pfam_data()
+        print(pfam_data)
+
+        # temporary: replace later
+
+        # pfam_data['domain_id'] = "PF10101099"
 
         response = self.client.post(PFAM_URL, data=pfam_data, format='json')
 
@@ -37,7 +42,7 @@ class PfamTestCase(DomainTestHelper):
 
         # temporary: replace later
 
-        pfam_data['domain_id'] = "PF10101099"
+        # pfam_data['domain_id'] = "PF10101099"
 
         self.client.force_authenticate(user=self.user)
 
@@ -47,7 +52,7 @@ class PfamTestCase(DomainTestHelper):
 
         # self.assertIn()
 
-    def anon_user_cannot_perform_mod_operations(self):
+    def test_anon_user_cannot_perform_mod_operations(self):
 
         pfam = self.pfams[0]
 
@@ -55,29 +60,42 @@ class PfamTestCase(DomainTestHelper):
 
         update_data = {'domain_id': 'PF033423', 'description': 'updated description'}
 
-        endpoint = self.build_url(PFAM_UPDATE, kwargs={'pk': pfam.pk})
-
+        endpoint = self.build_url(PFAM_UPDATE, domain_id=pfam.domain_id)
+        
         response = self.client.post(endpoint, data=update_data, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
+        pfam_obj = Pfam.objects.get(pk=pfam.pk)
+
+        self.assertNotEqual(pfam_obj.domain_id, update_data.get('domain_id'))
+
         # DELETE
 
-        endpoint = self.build_url(PFAM_DELETE, kwargs={'pk': pfam.pk})
+        endpoint = self.build_url(PFAM_DELETE, domain_id=pfam.domain_id)
 
         response = self.client.post(endpoint, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def anon_user_can_perform_read_operations(self):
+    def test_anon_user_can_perform_read_operations(self):
 
         pfam = self.pfams[0]
 
-        endpoint = self.build_url(GET_PFAM, kwargs={'domain_id': pfam.pk})
+        endpoint = self.build_url(GET_PFAM, domain_id=pfam.domain_id)
 
-        response = self.client.get(GET_PFAM, format='json')
+        response = self.client.get(endpoint, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(data.get('domain_id'), pfam.domain_id)
+
+        # endpoint = self.build_url(PFAM_GET_TAXA_URL, taxa_id='')
+
+        # response = self.client.get()
+
 
 
 
