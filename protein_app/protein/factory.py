@@ -18,7 +18,7 @@ class TaxaFactory(factory.django.DjangoModelFactory):
 class ProteinFactory(factory.django.DjangoModelFactory):
 
     class Meta:
-        model = Taxa
+        model = Protein
 
     owner = factory.SubFactory(UserFactory)
     protein_id = factory.Sequence(lambda n: 'A0A016S8J%d' %n)
@@ -31,7 +31,7 @@ class ProteinFactory(factory.django.DjangoModelFactory):
         if not create or not extracted:
             return None
         
-        self.domains.add(**extracted)
+        self.domains.add(*extracted)
 
 
 
