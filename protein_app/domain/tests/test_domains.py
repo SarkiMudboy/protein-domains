@@ -14,6 +14,8 @@ PFAM_DELETE = 'pfam:pfam-delete'
 OBTAIN_TOKEN_PAIR = reverse('researchers:token_obtain_pair')
 REFRESH_TOKEN = reverse('researchers:token_refresh')
 
+
+DOMAIN_URL = 'pfam:domain'
 GET_DOMAIN_URL = 'pfam:get-domain'
 UPDATE_DOMAIN_URL = 'pfam:update-domain'
 DELETE_DOMAIN_URL = 'pfam:delete-domain'
@@ -159,3 +161,20 @@ class PfamTestCase(DomainTestHelper):
         with self.assertRaises(Pfam.DoesNotExist):
             Pfam.objects.get(id=pfam.pk)
         
+
+
+class DomainTestCase(DomainTestHelper):
+
+    def test_unauthenticated_user_cannot_create_new_pfam(self):
+
+        domain_data = self.api_data.get_domain_data()
+        print(domain_data)
+
+        response = self.client.post(DOMAIN_URL, data=domain_data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        with self.assertRaises(Domain.DoesNotExist):
+            Domain.objects.get(pfam=domain_data.get('pfam'))
+
+    
