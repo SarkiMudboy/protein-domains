@@ -26,6 +26,7 @@ class DomainSerializer(serializers.ModelSerializer):
             'stop'
         ]
 
+
 class DomainRetrieveSerializer(serializers.ModelSerializer):
 
     pfam = serializers.SlugRelatedField(

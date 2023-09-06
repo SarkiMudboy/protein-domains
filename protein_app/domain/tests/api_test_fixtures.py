@@ -14,5 +14,11 @@ class APIData:
     def get_domain_data(self, *args, **kwargs):
         
         self.domain = factory.build(dict, FACTORY_CLASS=DomainFactory)
+
+        # save pfam to persist it to db and get an id
+        pfam = self.domain.pop('pfam')
+        pfam.save()
+        self.domain['pfam'] = pfam.id
+
         return self.domain
 
