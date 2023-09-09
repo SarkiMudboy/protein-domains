@@ -132,34 +132,33 @@ class PfamTestCase(DomainTestHelper):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data['count'], 20)
 
-    # def test_authenticated_user_can_perform_mod_operations(self):
+    def test_authenticated_user_can_perform_mod_operations(self):
 
-    #     pfam = self.pfams[0]
+        pfam = self.pfams[0]
 
-    #     # UPDATE
+        # UPDATE
 
-    #     update_data = {'domain_id': 'PF033423', 'description': 'updated description'}
+        update_data = {'domain_id': 'PF033423', 'description': 'updated description'}
 
-    #     endpoint = self.build_url(PFAM_UPDATE, domain_id=pfam.domain_id)
+        endpoint = self.build_url(PFAM_UPDATE, domain_id=pfam.domain_id)
         
-    #     self.client.force_authenticate(user=self.user)
-    #     response = self.client.put(endpoint, data=update_data, format='json')
-
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    #     pfam_obj = Pfam.objects.get(pk=pfam.pk)
-    #     self.assertEqual(pfam_obj.domain_id, update_data.get('domain_id'))
-
-    #     # DELETE
-
-    #     endpoint = self.build_url(PFAM_DELETE, domain_id=pfam.domain_id)
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(endpoint, data=update_data, format='json')
         
-    #     response = self.client.delete(endpoint, format='json')
-    #     print(response.json())
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    #     with self.assertRaises(Pfam.DoesNotExist):
-    #         Pfam.objects.get(id=pfam.pk)
+        pfam_obj = Pfam.objects.get(pk=pfam.pk)
+        self.assertEqual(pfam_obj.domain_id, update_data.get('domain_id'))
+
+        # DELETE
+        
+        endpoint = self.build_url(PFAM_DELETE, domain_id=pfam_obj.domain_id)
+        response = self.client.delete(endpoint, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        with self.assertRaises(Pfam.DoesNotExist):
+            Pfam.objects.get(id=pfam.pk)
         
 
 
@@ -242,13 +241,39 @@ class DomainTestCase(DomainTestHelper):
 
         self.assertEqual(data.get('id'), domain.id)
 
-        # get all pfam
+        # get all domain
         response = self.client.get(DOMAIN_URL, format='json')
         data = response.json()
-        print(data)
+        
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data['count'], len(self.domains))
 
+    def test_authenticated_user_can_perform_mod_operations(self):
 
+        domain = self.domains[0]
 
-    
+        # UPDATE
+
+        update_data = {'pfam': self.pfams[-1].pk, 'description': 'updated description', 
+                       'start': 200, 'stop': 1000}
+
+        
+        self.client.force_authenticate(user=self.user)
+
+        endpoint = self.build_url(UPDATE_DOMAIN_URL, id=domain.id)
+        response = self.client.put(endpoint, data=update_data, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        domain_obj = Domain.objects.get(pk=domain.pk)
+        self.assertEqual(domain_obj.description, update_data.get('description'))
+
+        # DELETE
+        
+        endpoint = self.build_url(DELETE_DOMAIN_URL, id=domain_obj.id)
+        response = self.client.delete(endpoint, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        with self.assertRaises(Domain.DoesNotExist):
+            Domain.objects.get(id=domain.pk)

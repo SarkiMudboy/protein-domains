@@ -141,5 +141,10 @@ loadTaxaBtn.addEventListener('click', (e) => {
 
 })
 
-// 53326
-// ASEW2345
+
+
+let tree = 2 + 3;
+
+var jenny = horizon + tree;
+
+console.log(jenny)
