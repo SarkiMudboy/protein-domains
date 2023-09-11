@@ -6,6 +6,7 @@ from users.factory import UserFactory
 from abstract.tests.test_helpers import TestHelper
 from .api_test_fixtures import APIData
 from django.urls import reverse
+from typing import Any
 
 
 class DomainTestHelper(TestHelper):
@@ -21,7 +22,7 @@ class DomainTestHelper(TestHelper):
     def tearDown(self) -> None:
         return super().tearDown()
     
-    def build_url(self, endpoint, **kwargs):
+    def build_url(self, endpoint: str, **kwargs: Any) -> str:
 
         return reverse(endpoint, kwargs=kwargs)
     

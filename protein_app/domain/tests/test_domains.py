@@ -28,7 +28,6 @@ class PfamTestCase(DomainTestHelper):
         pfam_data = self.api_data.get_pfam_data()
 
         # temporary: replace later
-
         pfam_data['domain_id'] = "PF10101099"
 
         response = self.client.post(PFAM_URL, data=pfam_data, format='json')
