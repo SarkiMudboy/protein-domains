@@ -2,6 +2,7 @@ from .test_helpers import ProteinTestHelper
 from django.urls import reverse
 from rest_framework import status
 from protein.models import Protein, Taxa
+from django.shortcuts import get_object_or_404
 
 
 PROTEIN_URL = 'protein:protein-list'
@@ -70,7 +71,7 @@ class ProteinTestCase(ProteinTestHelper):
         update_data['protein_id'] = "A0A016S8J11"
 
         endpoint = self.build_url(PROTEIN_UPDATE, protein_id=protein.protein_id)
-        response = self.client.post(endpoint, data=update_data, format='json')
+        response = self.client.put(endpoint, data=update_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         protein_obj = Protein.objects.get(pk=protein.pk)
@@ -79,19 +80,66 @@ class ProteinTestCase(ProteinTestHelper):
 
         # DELETE
 
-        endpoint = self.build_url(PROTEIN_DELETE, protein_id=protein.protein_id)
-        response = self.client.post(endpoint, format='json')
+        endpoint = self.build_url(PROTEIN_DELETE, protein_id=protein_obj.protein_id)
+        response = self.client.delete(endpoint, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_anon_user_can_perform_read_operations(self):
 
         protein = self.create_protein_with_domains()
-
+        
         endpoint = self.build_url(PROTEIN_GET, protein_id=protein.protein_id)
         response = self.client.get(endpoint, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()
-        print(data)
-        # self.assertIs(len(data['domains']), )
+        
+        self.assertEqual(data['id'], protein.pk)
+        self.assertEqual(data['protein_id'], protein.protein_id)
+        self.assertEqual(data['taxonomy']['id'], protein.taxonomy.id)
+        self.assertIs(len(data['domains']), len(protein.domains.all()))
+
+        taxonomy = self.taxa[0]
+        for protein in self.proteins:
+            protein.taxonomy = taxonomy
+            protein.save()
+
+        endpoint = self.build_url(PROTEIN_URL, taxa_id=taxonomy.taxa_id)
+        response = self.client.get(endpoint, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+        self.assertEqual(data['count'], len(self.proteins))
+
+    def test_authenticated_user_can_perform_mod_ops(self):
+        
+        protein = self.proteins[0]
+
+        # UPDATE
+        update_data = self.data.get_protein_data()
+        update_data['protein_id'] = "A0A016S8J11"
+
+        endpoint = self.build_url(PROTEIN_UPDATE, protein_id=protein.protein_id)
+
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(endpoint, data=update_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        protein_obj = Protein.objects.get(pk=protein.pk)
+
+        self.assertEqual(protein_obj.protein_id, update_data.get('protein_id'))
+
+        # DELETE
+
+        endpoint = self.build_url(PROTEIN_DELETE, protein_id=protein_obj.protein_id)
+        response = self.client.delete(endpoint, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        with self.assertRaises(Protein.DoesNotExist):
+            Protein.objects.get(pk=protein.pk)
+
+
+class TaxaTestCase(ProteinTestHelper):
+    ...
