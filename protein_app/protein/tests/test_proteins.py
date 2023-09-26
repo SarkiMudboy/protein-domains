@@ -142,4 +142,14 @@ class ProteinTestCase(ProteinTestHelper):
 
 
 class TaxaTestCase(ProteinTestHelper):
-    ...
+    
+    def test_unauthenticated_user_cannot_create_new_taxa(self):
+
+        taxa_data = self.data.get_taxa_data()
+        taxa_data['taxa_id'] = '5454545'
+
+        response = self.client.post(TAXA_CREATE, taxa_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        with self.assertRaises(Taxa.DoesNotExist):
+            Taxa.objects.get(taxa_id=taxa_data.get('taxa_id'))
