@@ -24,16 +24,17 @@ from corsheaders.defaults import default_headers
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 import environ
+import os
 
 # initialize environment variables
-env = environ.Env()
-environ.Env.read_env(env_file=str(BASE_DIR) + '/.env')
+# env = environ.Env()
+# environ.Env.read_env(env_file=str(BASE_DIR) + '/.env')
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env("SECRET_KEY")
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", True)
 
 ALLOWED_HOSTS = []
 
@@ -118,11 +119,11 @@ WSGI_APPLICATION = 'protein_app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': env("DB_NAME"),
-        'USER': env("DB_USER"),
-        'PASSWORD': env("DB_PASSWORD"),
-        'HOST': env("DB_HOST"),
-        'PORT': env("DB_PORT"),
+        'NAME': os.environ.get("DB_NAME"),
+        'USER': os.environ.get("DB_USER"),
+        'PASSWORD': os.environ.get("DB_PASSWORD"),
+        'HOST': os.environ.get("DB_HOST"),
+        'PORT': os.environ.get("DB_PORT"),
     }
 }
 
